@@ -335,6 +335,43 @@ declarations:
     name: double
   init: "4.0"
 EOF2
+
+  [ :var_args, <<EOF1, <<EOF2 ],
+int f(int a, ...);
+EOF1
+functions:
+- name: f
+  type:
+    kind: int
+    name: int
+  params:
+  - name: a
+    type:
+      kind: int
+      name: int
+  var_args: true
+EOF2
+
+  [ :var_args_function_pointer, <<EOF1, <<EOF2 ],
+int (*f)(int a, ...);
+EOF1
+declarations:
+- name: f
+  type:
+    kind: pointer
+    type:
+      kind: function
+      type:
+        kind: int
+        name: int
+      params:
+      - name: a
+        type:
+          kind: int
+          name: int
+      var_args: true
+EOF2
+
   ]
 
   TESTS.each { |name, input, output|

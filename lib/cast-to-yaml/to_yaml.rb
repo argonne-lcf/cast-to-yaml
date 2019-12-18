@@ -45,6 +45,9 @@ module C
             if d.indirect_type.params
               f["params"] = d.indirect_type.params.collect { |p| p.to_h }
             end
+            if d.indirect_type.var_args?
+              f["var_args"] = true
+            end
             
             res["functions"].push f
           else
@@ -251,6 +254,9 @@ module C
           else
             params.collect{|p| p.to_h }
           end
+      end
+      if var_args?
+        res["var_args"] = true
       end
       res
     end
