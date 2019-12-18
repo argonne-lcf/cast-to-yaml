@@ -43,6 +43,19 @@ declarations:
       name: int
 EOF2
 
+  [ :static_pointer, <<EOF1, <<EOF2 ],
+static int * intptr;
+EOF1
+declarations:
+- name: intptr
+  type:
+    kind: pointer
+    type:
+      kind: int
+      name: int
+  storage: static
+EOF2
+
   [ :array, <<EOF1, <<EOF2 ],
 int a[5];
 EOF1
@@ -88,6 +101,38 @@ functions:
     type:
       kind: int
       name: int
+EOF2
+
+  [ :inline_function, <<EOF1, <<EOF2 ],
+inline int f(int a);
+EOF1
+functions:
+- name: f
+  type:
+    kind: int
+    name: int
+  params:
+  - name: a
+    type:
+      kind: int
+      name: int
+  inline: true
+EOF2
+
+  [ :static_function, <<EOF1, <<EOF2 ],
+static int f(int a);
+EOF1
+functions:
+- name: f
+  type:
+    kind: int
+    name: int
+  params:
+  - name: a
+    type:
+      kind: int
+      name: int
+  storage: static
 EOF2
 
   [ :union, <<EOF1, <<EOF2 ],

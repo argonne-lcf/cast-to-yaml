@@ -23,7 +23,10 @@ module C
 
     def to_a
       declarators.collect { |d|
-        d.to_h(self)
+        res = d.to_h(self)
+        res["storage"] = storage.to_s if storage
+        res["inline"] = true if inline?
+        res
       }
     end
 
@@ -48,10 +51,19 @@ module C
             if d.indirect_type.var_args?
               f["var_args"] = true
             end
+            if inline?
+              f["inline"] = true
+            end
+            if storage
+              f["storage"] = storage.to_s
+            end
             
             res["functions"].push f
           else
-            res["declarations"].push d.to_h(self)
+            r = d.to_h(self)
+            r["storage"] = storage.to_s if storage
+            r["inline"] = true if inline?
+            res["declarations"].push r
           end
         }
       end
