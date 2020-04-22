@@ -1,13 +1,40 @@
 module C
 
+  class Node
+
+    def to_h_split
+      res = {}
+      kind = self.class.kind
+      res["kind"] = kind
+      fields.each do |f|
+        name = f.init_key.to_s
+        value = self.send(f.reader)
+        if value && !(value == f.make_default)
+          res[name] =
+            if f.child?
+              if value.kind_of? C::NodeList
+                value.collect { |n| n.to_h_split }
+              else
+                value.to_h_split
+              end
+            else
+              value
+            end
+        end
+      end
+      return res
+    end
+
+  end
+
   class Declarator
-    def to_h(declaration)
+    def to_h_split(declaration)
       res = {}
       res["name"] = name.dup
       res["type"] = if indirect_type
-          indirect_type.to_h(declaration)
+          indirect_type.to_h_split(declaration)
         else
-          declaration.type.to_h
+          declaration.type.to_h_split
         end
       if init
         res["init"] = init.to_s
@@ -23,7 +50,7 @@ module C
 
     def to_a
       declarators.collect { |d|
-        res = d.to_h(self)
+        res = d.to_h_split(self)
         res["storage"] = storage.to_s if storage
         res["inline"] = true if inline?
         res
@@ -33,7 +60,7 @@ module C
     def extract(res = Hash::new { |h, k| h[k] = [] })
       if typedef?
         declarators.each { |d|
-          res["typedefs"].push d.to_h(self)
+          res["typedefs"].push d.to_h_split(self)
         }
       else
         declarators.each { |d|
@@ -41,12 +68,12 @@ module C
             f = {}
             f["name"] = d.name
             if d.indirect_type.type
-              f["type"] = d.indirect_type.type.to_h(self)
+              f["type"] = d.indirect_type.type.to_h_split(self)
             else
-              f["type"] = type.to_h(self)
+              f["type"] = type.to_h_split(self)
             end
             if d.indirect_type.params
-              f["params"] = d.indirect_type.params.collect { |p| p.to_h }
+              f["params"] = d.indirect_type.params.collect { |p| p.to_h_split }
             end
             if d.indirect_type.var_args?
               f["var_args"] = true
@@ -60,7 +87,7 @@ module C
             
             res["functions"].push f
           else
-            r = d.to_h(self)
+            r = d.to_h_split(self)
             r["storage"] = storage.to_s if storage
             r["inline"] = true if inline?
             res["declarations"].push r
@@ -81,7 +108,7 @@ module C
         s["name"] = type.name
         m = []
         type.members.each { |mem|
-          m.push mem.to_h
+          m.push mem.to_h_split
         }
         s["members"] = m
         res["enums"].push s
@@ -114,7 +141,7 @@ module C
   float_longnesses = ['float', 'double', 'long double']
   ## DirectTypes
   class Struct
-    def to_h
+    def to_h_split
       res = {}
       res["kind"] = "struct"
       if name
@@ -134,7 +161,7 @@ module C
   end
 
   class Union
-    def to_h
+    def to_h_split
       res = {}
       res["kind"] = "union"
       if name
@@ -154,7 +181,7 @@ module C
   end
 
   class Enum
-    def to_h
+    def to_h_split
       res = {}
       res["kind"] = "enum"
       if name
@@ -162,7 +189,7 @@ module C
       else
         m = []
         members.each { |mem|
-          m.push mem.to_h
+          m.push mem.to_h_split
         }
         res["members"] = m
       end
@@ -174,7 +201,7 @@ module C
   end
 
   class Enumerator
-    def to_h
+    def to_h_split
       res = {}
       res["name"] = name
       if val
@@ -197,7 +224,7 @@ module C
     [Complex   , proc{"_Complex #{float_longnesses[longness]}"}],
     [Imaginary , proc{"_Imaginary #{float_longnesses[longness]}"}]
   ].each do |c, x|
-    c.send(:define_method, :to_h) do |_ = nil|
+    c.send(:define_method, :to_h_split) do |_ = nil|
       res = {}
       if self.kind_of? CustomType
         res["kind"] = "custom_type"
@@ -214,7 +241,7 @@ module C
 
   ## IndirectTypes
   class Pointer
-    def to_h(declaration = nil)
+    def to_h_split(declaration = nil)
       res = {}
       res["kind"] = "pointer"
       res["const"] = true if const?
@@ -222,28 +249,29 @@ module C
       res["volatile"] = true if volatile?
       if type
         if declaration
-          res["type"] = type.to_h(declaration)
+          res["type"] = type.to_h_split(declaration)
         else
-          res["type"] = type.to_h
+          res["type"] = type.to_h_split
         end
       else
-        res["type"] = declaration.type.to_h
+        res["type"] = declaration.type.to_h_split
       end
       res
     end
   end
+
   class Array
-    def to_h(declaration = nil)
+    def to_h_split(declaration = nil)
       res = {}
       res["kind"] = "array"
       if type
         if declaration
-          res["type"] = type.to_h(declaration)
+          res["type"] = type.to_h_split(declaration)
         else
-          res["type"] = type.to_h
+          res["type"] = type.to_h_split
         end
       else
-        res["type"] = declaration.type.to_h
+        res["type"] = declaration.type.to_h_split
       end
       if length
         res["length"] = length.to_s
@@ -251,20 +279,21 @@ module C
       res
     end
   end
+
   class Function
-    def to_h(declaration, no_types=false)
+    def to_h_split(declaration, no_types=false)
       res = {}
       res["kind"] = "function"
       if type
-        res["type"] = type.to_h(declaration)
+        res["type"] = type.to_h_split(declaration)
       else
-        res["type"] = declaration.type.to_h
+        res["type"] = declaration.type.to_h_split
       end
       if !params.nil?
         res["params"] = if no_types
             params.collect{|p| p.name }
           else
-            params.collect{|p| p.to_h }
+            params.collect{|p| p.to_h_split }
           end
       end
       if var_args?
@@ -273,11 +302,12 @@ module C
       res
     end
   end
+
   class Parameter
-    def to_h
+    def to_h_split
       res = {}
       res["name"] = name.to_s if name.to_s != ''
-      res["type"] = type.to_h
+      res["type"] = type.to_h_split
       res["register"] = true if register?
       res
     end
