@@ -6,7 +6,6 @@ Gem::Specification.new do |s|
   s.homepage = "https://github.com/alcf-perfengr/cast-to-yaml"
   s.summary = "Extract information fom a c ast"
   s.files = Dir[ 'cast-to-yaml.gemspec', 'LICENSE', 'lib/**/*.rb' ]
-  s.has_rdoc = false
   s.license = 'MIT'
   s.required_ruby_version = '>= 2.3.0'
   s.add_dependency 'cast', '~> 0.3', '>=0.3.0'
