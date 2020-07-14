@@ -141,7 +141,7 @@ module C
   float_longnesses = ['float', 'double', 'long double']
   ## DirectTypes
   class Struct
-    def to_h_split
+    def to_h_split(_ = nil)
       res = {}
       res["kind"] = "struct"
       if name
@@ -161,7 +161,7 @@ module C
   end
 
   class Union
-    def to_h_split
+    def to_h_split(_ = nil)
       res = {}
       res["kind"] = "union"
       if name

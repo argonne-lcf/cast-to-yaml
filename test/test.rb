@@ -349,6 +349,36 @@ declarations:
         name: float
 EOF2
 
+  [:function_struct_param, <<EOF1, <<EOF2 ],
+int f(struct toto t);
+EOF1
+functions:
+- name: f
+  type:
+    kind: int
+    name: int
+  params:
+  - name: t
+    type:
+      kind: struct
+      name: toto
+EOF2
+
+  [:function_returns_struct_param, <<EOF1, <<EOF2 ],
+struct toto f(int a);
+EOF1
+functions:
+- name: f
+  type:
+    kind: struct
+    name: toto
+  params:
+  - name: a
+    type:
+      kind: int
+      name: int
+EOF2
+
   [ :anonymous_struct_typedef, <<EOF1, <<EOF2 ],
 typedef struct {
   int a;
