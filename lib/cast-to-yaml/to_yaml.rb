@@ -57,7 +57,7 @@ module C
       }
     end
 
-    def extract(res = Hash::new { |h, k| h[k] = [] })
+    def extract(res = Hash::new { |h, k| h[k] = [] }, declarations: true)
       if typedef?
         declarators.each { |d|
           res["typedefs"].push d.to_h_split(self)
@@ -86,7 +86,7 @@ module C
             end
             
             res["functions"].push f
-          else
+          elsif declarations
             r = d.to_h_split(self)
             r["storage"] = storage.to_s if storage
             r["inline"] = true if inline?
@@ -99,6 +99,7 @@ module C
         s["name"] = type.name
         m = []
         type.members.each { |mem|
+          mem.extract(res, declarations: false)
           m += mem.to_a
         }
         s["members"] = m
@@ -117,6 +118,7 @@ module C
         s["name"] = type.name
         m = []
         type.members.each { |mem|
+          mem.extract(res, declarations: false)
           m += mem.to_a
         }
         s["members"] = m
@@ -131,7 +133,7 @@ module C
       entities.select { |e|
         e.kind_of? Declaration
       }.each { |e|
-        e.extract(res)
+        e.extract(res, declarations: true)
       }
       res
     end

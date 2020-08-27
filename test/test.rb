@@ -447,6 +447,28 @@ declarations:
       var_args: true
 EOF2
 
+  [:nested_structs, <<EOF1, <<EOF2 ],
+struct s1 {
+  struct s2 {
+    int a;
+  } m;
+};
+EOF1
+structs:
+- name: s2
+  members:
+  - name: a
+    type:
+      kind: int
+      name: int
+- name: s1
+  members:
+  - name: m
+    type:
+      kind: struct
+      name: s2
+EOF2
+
   ]
 
   TESTS.each { |name, input, output|
