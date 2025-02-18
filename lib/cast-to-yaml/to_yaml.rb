@@ -49,12 +49,19 @@ module C
   class Declaration
 
     def to_a
-      declarators.collect { |d|
-        res = d.to_h_split(self)
-        res["storage"] = storage.to_s if storage
-        res["inline"] = true if inline?
-        res
-      }
+      # Anonymous nested composites
+      if declarators.empty?
+        if (type.kind_of?(Struct) || type.kind_of?(Union)) && type.members && !type.name
+          [{"type" => self.type.to_h_split}]
+        end
+      else
+        declarators.collect { |d|
+          res = d.to_h_split(self)
+          res["storage"] = storage.to_s if storage
+          res["inline"] = true if inline?
+          res
+        }
+      end
     end
 
     def extract(res = Hash::new { |h, k| h[k] = [] }, declarations: true)
@@ -94,16 +101,18 @@ module C
           end
         }
       end
-      if type.kind_of?(Struct) && type.members && type.name
-        s = {}
-        s["name"] = type.name
+      if type.kind_of?(Struct) && type.members
         m = []
         type.members.each { |mem|
           mem.extract(res, declarations: false)
           m += mem.to_a
         }
-        s["members"] = m
-        res["structs"].push s
+        if type.name
+          s = {}
+          s["name"] = type.name
+          s["members"] = m
+          res["structs"].push s
+        end
       elsif type.kind_of?(Enum) && type.members && type.name
         s = {}
         s["name"] = type.name
@@ -113,16 +122,18 @@ module C
         }
         s["members"] = m
         res["enums"].push s
-      elsif type.kind_of?(Union) && type.members && type.name
-        s = {}
-        s["name"] = type.name
+      elsif type.kind_of?(Union) && type.members
         m = []
         type.members.each { |mem|
           mem.extract(res, declarations: false)
           m += mem.to_a
         }
-        s["members"] = m
-        res["unions"].push s
+        if type.name
+          s = {}
+          s["name"] = type.name
+          s["members"] = m
+          res["unions"].push s
+        end
       end
       res
     end
