@@ -469,6 +469,154 @@ structs:
       name: s2
 EOF2
 
+  [:anonymous_nested_structs, <<EOF1, <<EOF2 ],
+struct s1 {
+  struct {
+    int a;
+  };
+};
+EOF1
+structs:
+- name: s1
+  members:
+  - type:
+      kind: struct
+      members:
+      - name: a
+        type:
+          kind: int
+          name: int
+EOF2
+
+  [:anonymous_nested_structs_named, <<EOF1, <<EOF2 ],
+struct s1 {
+  struct {
+    int a;
+  } b;
+};
+EOF1
+structs:
+- name: s1
+  members:
+  - name: b
+    type:
+      kind: struct
+      members:
+      - name: a
+        type:
+          kind: int
+          name: int
+EOF2
+
+  [:anonymous_nested_unions, <<EOF1, <<EOF2 ],
+struct s1 {
+  union {
+    int a;
+    char b;
+  };
+};
+EOF1
+structs:
+- name: s1
+  members:
+  - type:
+      kind: union
+      members:
+      - name: a
+        type:
+          kind: int
+          name: int
+      - name: b
+        type:
+          kind: char
+          name: char
+EOF2
+
+  [:anonymous_nested_unions_named, <<EOF1, <<EOF2 ],
+struct s1 {
+  union {
+    int a;
+    char b;
+  } c;
+};
+EOF1
+structs:
+- name: s1
+  members:
+  - name: c
+    type:
+      kind: union
+      members:
+      - name: a
+        type:
+          kind: int
+          name: int
+      - name: b
+        type:
+          kind: char
+          name: char
+EOF2
+
+  [:anonymous_nested_unions_and_named_structs, <<EOF1, <<EOF2 ],
+struct s1 {
+  union {
+    struct s2 {
+      int a;
+    } b;
+    float c;
+  } d;
+};
+EOF1
+structs:
+- name: s2
+  members:
+  - name: a
+    type:
+      kind: int
+      name: int
+- name: s1
+  members:
+  - name: d
+    type:
+      kind: union
+      members:
+      - name: b
+        type:
+          kind: struct
+          name: s2
+      - name: c
+        type:
+          kind: float
+          name: float
+EOF2
+
+  [:typedef_nested_structs, <<EOF1, <<EOF2 ],
+typedef struct s1 {
+  struct s2 {
+    int a;
+  } b;
+} s_t;
+EOF1
+typedefs:
+- name: s_t
+  type:
+    name: s1
+    kind: struct
+structs:
+- name: s2
+  members:
+  - name: a
+    type:
+      kind: int
+      name: int
+- name: s1
+  members:
+  - name: b
+    type:
+      kind: struct
+      name: s2
+EOF2
+
   ]
 
   TESTS.each { |name, input, output|
