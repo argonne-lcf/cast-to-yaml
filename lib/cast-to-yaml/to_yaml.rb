@@ -113,9 +113,9 @@ module C
           s["members"] = m
           res["structs"].push s
         end
-      elsif type.kind_of?(Enum) && type.members && type.name
+      elsif type.kind_of?(Enum) && type.members && (type.name || (declarators.empty? && declarations))
         s = {}
-        s["name"] = type.name
+        s["name"] = type.name if type.name
         m = []
         type.members.each { |mem|
           m.push mem.to_h_split

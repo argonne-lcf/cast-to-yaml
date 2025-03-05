@@ -253,7 +253,7 @@ enums:
   - name: TWO
 EOF2
 
-  [ :anonymous_enum, <<EOF1, <<EOF2 ],
+  [ :anonymous_enum_decl, <<EOF1, <<EOF2 ],
 enum {
   ONE = 1,
   TWO
@@ -283,6 +283,19 @@ typedefs:
     - name: ONE
       val: "1"
     - name: TWO
+EOF2
+
+  [ :anonymous_enum, <<EOF1, <<EOF2 ],
+typedef enum {
+  ONE = 1,
+  TWO
+};
+EOF1
+enums:
+- members:
+  - name: ONE
+    val: "1"
+  - name: TWO
 EOF2
 
   [ :struct, <<EOF1, <<EOF2 ],
