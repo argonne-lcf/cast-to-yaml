@@ -630,6 +630,39 @@ structs:
       name: s2
 EOF2
 
+  [:function_array_param, <<EOF1, <<EOF2 ],
+int f(int a[], int b[][3], int c[3]);
+EOF1
+functions:
+- name: f
+  type:
+    kind: int
+    name: int
+  params:
+  - name: a
+    type:
+      kind: array
+      type:
+        kind: int
+        name: int
+  - name: b
+    type:
+      kind: array
+      type:
+        kind: array
+        type:
+          kind: int
+          name: int
+        length: '3'
+  - name: c
+    type:
+      kind: array
+      type:
+        kind: int
+        name: int
+      length: '3'
+EOF2
+
   ]
 
   TESTS.each { |name, input, output|
