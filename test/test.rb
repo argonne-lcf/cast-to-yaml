@@ -88,6 +88,26 @@ declarations:
           name: int
 EOF2
 
+  [ :typedef_function_pointer, <<EOF1, <<EOF2 ],
+typedef int (*pf_t)(int a);
+EOF1
+---
+typedefs:
+- name: pf_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      type:
+        kind: int
+        name: int
+      params:
+      - name: a
+        type:
+          kind: int
+          name: int
+EOF2
+
   [ :function, <<EOF1, <<EOF2 ],
 int f(int a);
 EOF1
