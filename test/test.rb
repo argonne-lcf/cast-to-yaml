@@ -590,6 +590,26 @@ structs:
           name: char
 EOF2
 
+  [:anonymous_nested_enum_and_named_structs, <<EOF1, <<EOF2 ],
+struct s1 {
+  enum {
+    ONE = 1,
+    TWO
+  } e;
+};
+EOF1
+structs:
+- name: s1
+  members:
+  - name: e
+    type:
+      kind: enum
+      members:
+      - name: ONE
+        val: '1'
+      - name: TWO
+EOF2
+
   [:anonymous_nested_unions_and_named_structs, <<EOF1, <<EOF2 ],
 struct s1 {
   union {
